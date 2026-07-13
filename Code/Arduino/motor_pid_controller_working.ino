@@ -1,19 +1,17 @@
-// =====================================================
 //  DC Motor Speed Controller — TB6612FNG + Quadrature Encoder
 //  PID speed control driven by RPM commands over Serial
-// =====================================================
 
-// ---------- TB6612FNG motor driver pins ----------
+// TB6612FNG motor driver pins
 #define PWMA 5
 #define AIN1 7
 #define AIN2 8
 #define STBY 9
 
-// ---------- Encoder pins ----------
+// Encoder pins
 #define ENCODER_A 2
 #define ENCODER_B 3
 
-// ---------- Encoder variables ----------
+// Encoder variables
 volatile long encoderCount = 0;
 long currentCount = 0;
 long previousCount = 0;
@@ -21,11 +19,10 @@ long deltaPulses = 0;
 
 // Pulses per revolution: DC motor datasheet value with 1:9.6 gearbox ratio.
 // Using x4 quadrature would give 422.4 PPR; if encoder channel B is broken,
-// a simpler x2 scheme is used instead -> 422.4 / 2 = 211.2
+// a simpler x2 scheme is used instead -> 422.4 / 2 = 211.2. This is still left to be tested...
 double PPR_DC_ENGINE = 211.2;
 
-// ---------- PID parameters ----------
-// Gains increased for a much faster response / quicker acceleration.
+// PID parameters
 double Kp = 1.0;
 double Ki = 0.6;
 double Kd = 0.05;
@@ -39,30 +36,24 @@ double output = 0;        // PWM command sent to the motor
 double previousError = 0;
 double integral = 0;
 
-// Anti-windup limit: keeps the integral term from saturating the output
 const double OUTPUT_LIMIT = 255.0;
-const double INTEGRAL_LIMIT = OUTPUT_LIMIT / 1.0; // clamps Ki * integral contribution
+const double INTEGRAL_LIMIT = OUTPUT_LIMIT / 1.0; // clamps Ki * integral contribution to remove exponential infinity rize
 
-// ---------- Timing ----------
+// Timing
 unsigned long lastTime = 0;
 unsigned long now = 0;
 const unsigned long sampleTime = 50;  // ms (20 Hz) — faster loop = faster response
 double dt = 0;
 
-// =====================================================
-//  Setup
-// =====================================================
 void setup() {
   Serial.begin(9600);
 
-  // Motor driver pins
   pinMode(PWMA, OUTPUT);
   pinMode(AIN1, OUTPUT);
   pinMode(AIN2, OUTPUT);
   pinMode(STBY, OUTPUT);
   digitalWrite(STBY, HIGH);  // enable TB6612
 
-  // Encoder pins
   pinMode(ENCODER_A, INPUT_PULLUP);
   pinMode(ENCODER_B, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(ENCODER_A), encoderAISR, CHANGE);
@@ -71,15 +62,12 @@ void setup() {
   Serial.println("Motor ready");
 }
 
-// =====================================================
-//  Main loop
-// =====================================================
+//main loop
 void loop() {
   readSerialCommand();
   runPID();
 }
 
-// ---------- Serial command handling ----------
 void readSerialCommand() {
   if (!Serial.available()) return;
 
@@ -100,7 +88,6 @@ void readSerialCommand() {
   }
 }
 
-// ---------- PID control loop ----------
 void runPID() {
   now = millis();
   if (now - lastTime < sampleTime) return;
@@ -115,7 +102,6 @@ void runPID() {
   previousCount = currentCount;
   input = deltaPulses;
 
-  // ---- PID calculation ----
   double error = setpointPPST - input;
 
   integral += error * dt;
@@ -138,7 +124,6 @@ void runPID() {
   Serial.println(output);
 }
 
-// ---------- Motor output ----------
 void applyMotor(double cmd) {
   cmd = constrain(cmd, -OUTPUT_LIMIT, OUTPUT_LIMIT);
 
@@ -154,7 +139,6 @@ void applyMotor(double cmd) {
   analogWrite(PWMA, (int)cmd);
 }
 
-// ---------- Encoder interrupt (direction inferred from setpoint sign) ----------
 void encoderAISR() {
   if (setpointRPM > 0) {
     encoderCount++;
@@ -163,7 +147,6 @@ void encoderAISR() {
   }
 }
 
-// ---------- RPM -> pulses-per-sample-time conversion ----------
 void RPMconversion() {
   setpointPPST = (setpointRPM * PPR_DC_ENGINE * (sampleTime / 1000.0)) / 60.0;
   Serial.print("Computed PPST: ");
