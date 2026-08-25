@@ -115,10 +115,16 @@ void updateRPM(String newTargetRPM) {
 void applyMotor(double cmd) {
   cmd = constrain(cmd, -255, 255);
 
-  if (cmd >= 0) {
+  if (cmd > 0) {
     digitalWrite(AIN1, HIGH);
     digitalWrite(AIN2, LOW);
-  } else {
+  } 
+  else if (cmd == 0) {
+    digitalWrite(AIN1, LOW);
+    digitalWrite(AIN2, LOW);
+  }
+  
+  else {
     digitalWrite(AIN1, LOW);
     digitalWrite(AIN2, HIGH);
     cmd = -cmd;
