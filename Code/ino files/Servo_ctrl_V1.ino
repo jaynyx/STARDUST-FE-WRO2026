@@ -24,7 +24,7 @@ void setup() {
 void loop() {
     if (Serial.available() > 0) {
 
-        int angle = Serial.parseInt();
+        angle = Serial.parseInt();
 
         angle = constrain(angle, 0, 180);
 

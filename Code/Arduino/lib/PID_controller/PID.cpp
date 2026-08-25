@@ -1,17 +1,5 @@
-//  DC Motor Speed Controller — TB6612FNG + Encoder
-//  PID speed control driven by RPM commands over Serial
-//  Simplified: single anti-windup mechanism, derivative-on-measurement,
-//  no output slew limiter.
+#include <PID.h>
 
-// TB6612FNG motor driver pins
-#define PWMA 5
-#define AIN1 7
-#define AIN2 8
-#define STBY 9
-
-// Encoder pins
-#define ENCODER_A 2
-#define ENCODER_B 3
 
 // Encoder variables
 volatile long encoderCount = 0;
@@ -45,52 +33,8 @@ const double INTEGRAL_LIMIT = 200.0; // tune: max contribution I can add, in PWM
 // Timing
 unsigned long lastTime = 0;
 unsigned long now = 0;
-const unsigned long sampleTime = 20;  // ms
+const unsigned long sampleTime = 20;  // ms  *needs some tuning through testing 
 double dt = 0;
-
-
-
-//// main type shi
-void setup() {
-  Serial.begin(9600);
-
-  pinMode(PWMA, OUTPUT);
-  pinMode(AIN1, OUTPUT);
-  pinMode(AIN2, OUTPUT);
-  pinMode(STBY, OUTPUT);
-  digitalWrite(STBY, HIGH);
-
-  pinMode(ENCODER_A, INPUT_PULLUP);
-  pinMode(ENCODER_B, INPUT_PULLUP);
-
-  attachInterrupt(digitalPinToInterrupt(ENCODER_A), encoderAISR, CHANGE);
-
-  lastTime = millis();
-  Serial.println("Motor ready");
-}
-
-void loop() {
-  readSerialCommand();
-  runPID();
-}
-
-void readSerialCommand() {
-  if (!Serial.available()) return;
-
-  String command = Serial.readStringUntil('\n');
-
-  if (command.startsWith("RPM:")) {       // parses new RPM setpoint commands
-    setpointRPM = command.substring(4).toInt();
-    Serial.print("New RPM target: ");
-    Serial.println(setpointRPM);
-  }
-}
-
-
-////// main type shi
-
-
-
 
 
 
@@ -150,7 +94,22 @@ void runPID() {
   Serial.println(output);
 
   lastTime = now;
-  applyMotor(output);
+  //applyMotor(output);
+}
+
+
+// Encoder interrupt
+void encoderAISR() {
+  if (setpointRPM >= 0)
+    encoderCount++;
+  else
+    encoderCount--;
+}
+
+void updateRPM(String newTargetRPM) {
+  setpointRPM = newTargetRPM.toInt();
+  Serial.print("New RPM target: ");
+  Serial.println(setpointRPM);
 }
 
 void applyMotor(double cmd) {
@@ -166,12 +125,4 @@ void applyMotor(double cmd) {
   }
 
   analogWrite(PWMA, (int)cmd);
-}
-
-// Encoder interrupt
-void encoderAISR() {
-  if (setpointRPM >= 0)
-    encoderCount++;
-  else
-    encoderCount--;
 }
