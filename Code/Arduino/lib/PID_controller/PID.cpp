@@ -51,8 +51,8 @@ void runPID() {
   interrupts();
 
   deltaPulses = currentCount - previousCount;
-  Serial.print("deltaPulse:");
-  Serial.print(deltaPulses);
+  //Serial.print("deltaPulse:");
+  //Serial.print(deltaPulses);
   previousCount = currentCount;
 
   currentRPM = (deltaPulses / PPR_DC_ENGINE) * (60.0 / dt);  // PPST conversion to RPMS
@@ -79,8 +79,8 @@ void runPID() {
   //output = constrain(P + I + D, -OUTPUT_LIMIT, OUTPUT_LIMIT);             // see if no bounds could create issue
   output = Kf * setpointRPM + P + I + D;
 
-
-  Serial.print("RPM=");
+  /*
+  Serial.print(" RPM=");
   Serial.print(currentRPM);
   Serial.print(" Error=");
   Serial.print(error);
@@ -91,10 +91,10 @@ void runPID() {
   Serial.print(" D=");
   Serial.print(D);
   Serial.print(" PWM=");
-  Serial.println(output);
+  Serial.println(output);*/
 
   lastTime = now;
-  //applyMotor(output);
+  applyMotor(output);
 }
 
 

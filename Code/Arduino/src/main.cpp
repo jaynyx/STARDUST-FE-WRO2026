@@ -56,6 +56,7 @@ void loop() {
   }
   
   runPID();
+  delay(1);
 }
 
 
