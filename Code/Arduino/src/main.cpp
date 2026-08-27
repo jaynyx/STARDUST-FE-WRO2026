@@ -36,12 +36,12 @@ void setup() {
 
 
   lastTime = millis();
-  Serial.println("Motor ready");
+  //Serial.println("Motor ready");
 }
 
 void loop() {
 
-  Serial.println("before read serial");
+  //Serial.println("before read serial");
   readSerialCommand();
   Serial.println("after read serial");
   if (newRPM != ""){
@@ -69,7 +69,7 @@ void readSerialCommand() {
   if (!Serial.available()) return;
   delay(100); // wait for the entire command to be received
 
-  Serial.println("Serial command received");
+ //Serial.println("Serial command received");
 
   String command = Serial.readStringUntil('\n');
 
@@ -79,18 +79,18 @@ void readSerialCommand() {
   int firstComma = command.indexOf(',');
   int secondComma = command.indexOf(',', firstComma + 1);
 
-  Serial.println("RPM values parsed");
+  //Serial.println("RPM values parsed");
 
   newRPM = command.substring(1, firstComma);
 
   int startSecond = command.indexOf('[', firstComma) + 1;
   int endSecond   = command.indexOf(']', startSecond);
 
-  Serial.println("servo values parsed");
+  //Serial.println("servo values parsed");
   newServoAngle = command.substring(startSecond, endSecond);
 
   int startThird = command.indexOf('[', secondComma) + 1;
   int endThird   = command.indexOf(']', startThird);
   currentChallenge = command.substring(startThird, endThird);
-  Serial.println("Challenge values parsed");
+  //Serial.println("Challenge values parsed");
 }
