@@ -43,7 +43,7 @@ void loop() {
 
   //Serial.println("before read serial");
   readSerialCommand();
-  Serial.println("after read serial");
+  //Serial.println("after read serial");
   if (newRPM != ""){
 
     updateRPM(newRPM);
