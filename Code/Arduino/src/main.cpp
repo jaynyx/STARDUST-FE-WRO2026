@@ -81,7 +81,8 @@ void readSerialCommand() {
 
   //Serial.println("RPM values parsed");
 
-  newRPM = command.substring(1, firstComma);
+  newRPM = command.substring(1, firstComma-1);
+
 
   int startSecond = command.indexOf('[', firstComma) + 1;
   int endSecond   = command.indexOf(']', startSecond);
