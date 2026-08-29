@@ -37,8 +37,8 @@ with Camera(port='/dev/ttyACM0', baudrate=921600) as cam:
                 continue
 
             w, h = frame['width'], frame['height']
-            img = np.frombuffer(frame['data'], dtype=np.uint8).reshape((h, w, 3))   # transform the raw data into a numpy array with the correct shape of height h and width w, and 3 channels (RGB)
-            img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+            img = np.frombuffer(frame['data'], dtype=np.uint8).reshape((h, w, 3))   # transform the raw data into a numpy array with the correct shape of height h and width w, and 3 channels (RGB) so each pixel has 0-255 RGB intensity
+            img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR) # simply flips the values from red green blue to blue gree red for OpenCV's sake
 
             img_bgr, detections = process_frame(img_bgr)              
 
