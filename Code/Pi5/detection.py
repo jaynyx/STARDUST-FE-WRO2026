@@ -6,7 +6,7 @@ import numpy as np
 
 COLOR_RANGES = {
     "red":   [((0, 120, 70), (10, 255, 255))],
-    "green": [((36, 80, 60), (85, 255, 255))],
+    "green": [((36, 80, 60), (85, 255, 255))]
 }
 
 LINE_COLOR_RANGES = {
@@ -112,12 +112,81 @@ def detect_line(img_bgr, roi_bottom_ratio=0.3):
                     "length": length
                 }
 
-    if best_line:  # simply draws the overlay for debugging
-        color_draw = (255, 0, 0) if best_line["color"] == "blue" else (0, 165, 255)
-        cv2.line(img_bgr, (best_line["x1"], best_line["y1"]),
-                  (best_line["x2"], best_line["y2"]), color_draw, 2)
-        cv2.putText(img_bgr, best_line["color"], (best_line["x1"], best_line["y1"] - 5),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.4, color_draw, 1)
+    #if best_line:  # simply draws the overlay for debugging
+     #   color_draw = (255, 0, 0) if best_line["color"] == "blue" else (0, 165, 255)
+      #  cv2.line(img_bgr, (best_line["x1"], best_line["y1"]),
+      #            (best_line["x2"], best_line["y2"]), color_draw, 2)
+      #  cv2.putText(img_bgr, best_line["color"], (best_line["x1"], best_line["y1"] - 5),
+        #            cv2.FONT_HERSHEY_SIMPLEX, 0.4, color_draw, 1)
 
     return img_bgr, best_line
 
+# walls_lines.py
+
+WALL_COLOR_RANGES = {
+    # replace with your actual wall color(s) — tune these against your real mat/walls
+    "wall": [((10, 0, 0), (70, 70, 70))],  # example: a blue-ish wall range
+}
+
+# walls_lines.py
+
+def detect_walls(img_bgr, roi_top_ratio=0.25, dark_threshold=50, min_area=800,
+                  approx_epsilon_ratio=0.02):
+    """
+    Detects black walls via brightness thresholding + morphological cleanup +
+    contour detection. Optimized for reliability over raw speed.
+    """
+    h, w = img_bgr.shape[:2]
+    roi_y_start = int(h * roi_top_ratio)
+    roi = img_bgr[roi_y_start:h, :]
+
+    gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+
+    # stronger blur — smooths out floor texture/noise before thresholding
+    blurred = cv2.GaussianBlur(gray, (7, 7), 0)
+
+    # Otsu's method auto-picks the best threshold value per-frame, instead of
+    # relying on one fixed number that might not hold under changing lighting
+    _, mask = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+    # morphological cleanup: remove small noise specks, then fill small gaps/holes
+    kernel = np.ones((5, 5), np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=1)   # erode then dilate — kills small noise
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=2)  # dilate then erode — fills small gaps
+
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    PINK = (203, 192, 255)  # BGR
+
+    walls = []
+    for c in contours:
+        area = cv2.contourArea(c)
+        if area > min_area:
+            perimeter = cv2.arcLength(c, True)
+            epsilon = approx_epsilon_ratio * perimeter
+            simplified = cv2.approxPolyDP(c, epsilon, True)
+
+            x, y, bw, bh = cv2.boundingRect(c)
+
+            # solidity check: real solid walls should mostly fill their bounding box;
+            # a low solidity suggests a noisy/broken/non-wall-shaped blob
+            hull = cv2.convexHull(c)
+            hull_area = cv2.contourArea(hull)
+            solidity = area / hull_area if hull_area > 0 else 0
+
+            if solidity < 0.5:
+                continue  # skip oddly-shaped detections, likely not a real wall
+
+            walls.append({
+                "x": x, "y": y + roi_y_start,
+                "w": bw, "h": bh,
+                "center_x": x + bw // 2,
+                "area": area,
+                "solidity": round(solidity, 2)
+            })
+
+            shifted = simplified.copy()
+            shifted[:, :, 1] += roi_y_start
+            cv2.drawContours(img_bgr, [shifted], -1, PINK, 2)
+
+    return img_bgr, walls
