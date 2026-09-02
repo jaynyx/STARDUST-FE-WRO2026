@@ -4,8 +4,8 @@
 #include <STEERING.h>
 
 
-String newRPM;
-String newServoAngle;
+String newRPMFactor;
+String newServoAngleFactor;
 String currentChallenge;
 
 
@@ -32,8 +32,9 @@ void setup() {
 
   // SERVO pin and interrupt setup:            // servo object to control a servo  
   myServo.attach(SERVO_PIN);  // sets pin 10 to servo controls
-  myServo.write(90);
+  myServo.write(BASE_ANGLE);
 
+  applyMotor(BASE_SPEED); // apply a small amount of power to the motor to get it moving
 
   lastTime = millis();
   //Serial.println("Motor ready");
@@ -44,18 +45,18 @@ void loop() {
   //Serial.println("before read serial");
   readSerialCommand();
   //Serial.println("after read serial");
-  if (newRPM != ""){
+  if (newRPMFactor != "") {
 
-    updateRPM(newRPM);
-    newRPM = "";
+    updateRPM(newRPMFactor);
+    newRPMFactor = "";
 
   }
 
-  if (newServoAngle != "") {
+  if (newServoAngleFactor != "") {
 
-    updateServo(newServoAngle);
+    updateServo(newServoAngleFactor);
 
-    newServoAngle = "";
+    newServoAngleFactor = "";
   }
   
   runPID();
@@ -81,14 +82,14 @@ void readSerialCommand() {
 
   //Serial.println("RPM values parsed");
 
-  newRPM = command.substring(1, firstComma-1);
+  newRPMFactor = command.substring(1, firstComma-1);
 
 
   int startSecond = command.indexOf('[', firstComma) + 1;
   int endSecond   = command.indexOf(']', startSecond);
 
   //Serial.println("servo values parsed");
-  newServoAngle = command.substring(startSecond, endSecond);
+  newServoAngleFactor = command.substring(startSecond, endSecond);
 
   int startThird = command.indexOf('[', secondComma) + 1;
   int endThird   = command.indexOf(']', startThird);

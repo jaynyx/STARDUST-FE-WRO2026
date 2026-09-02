@@ -25,6 +25,8 @@ extern long deltaPulses;
 // Encoder resolution
 extern double PPR_DC_ENGINE;
 
+extern double BASE_SPEED; // Base speed for the motor
+
 // ---- PID parameters ----
 extern double Kp; // still need to be set through testing
 extern double Ki;
@@ -58,6 +60,6 @@ void runPID();
 
 void encoderAISR();
 
-void updateRPM(String newTargetRPM);
+void updateRPM(String newTargetRPMFactor);
 
 void applyMotor(double cmd);

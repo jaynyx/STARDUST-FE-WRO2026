@@ -10,6 +10,8 @@ long deltaPulses = 0;
 // Encoder resolution
 double PPR_DC_ENGINE = 211.2;
 
+double BASE_SPEED = 150; // Base speed for the motor
+
 // ---- PID parameters ----
 double Kp = 0.4; // still need to be set through testing
 double Ki = 0.95;
@@ -106,11 +108,21 @@ void encoderAISR() {
     encoderCount--;
 }
 
-void updateRPM(String newTargetRPM) {
-  setpointRPM = newTargetRPM.toInt();
-  Serial.print("New RPM target: ");
-  Serial.println(setpointRPM);
+void updateRPM(String newTargetRPMFactor) {
+  
+
+  if (newTargetRPMFactor.toInt() >= -1 && newTargetRPMFactor.toInt() <= 1) {
+  
+    setpointRPM = BASE_SPEED * newTargetRPMFactor.toInt();   // newTargetRPM is a scaler for the current setpointRPM, allowing for a range of RPMs to be set
+    Serial.print("New RPM target: ");
+    Serial.println(setpointRPM);
+
+  } else {
+    Serial.println("Invalid RPM factor. Please enter a value between -1 and 1.");
+  }
 }
+  
+
 
 void applyMotor(double cmd) {
   cmd = constrain(cmd, -255, 255);
