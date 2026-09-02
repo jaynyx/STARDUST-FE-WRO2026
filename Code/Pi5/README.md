@@ -4,3 +4,8 @@ In tools we can calibrate the colors of the pillars to use in the threshold in t
 
 For any documentation need as to how each classes and functions work, look at this link:
 https://docs.openmv.io/v5.0.0/fr/openmvcam/tutorial/index.html
+
+
+Notes while reading the host protocol tutorial on OpenMV:
+
+- for unidirectional, we can remove the ACK required in the paquet exchange to improve our performance through the protocol.init() call
