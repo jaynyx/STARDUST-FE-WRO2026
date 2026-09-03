@@ -16,7 +16,7 @@ later, not folded in yet.
 
 
 class RobotController:
-    def __init__(self, frame_width=320, trigger_area=800, max_area=6000, max_steer=1.0):
+    def __init__(self, frame_width=320, trigger_area=1200, max_area=4500, max_steer=1.0):
         """
         frame_width: width of the camera frame in pixels (used to center steering)
         trigger_area: pillar area (px^2) below which we ignore it (too far away to matter)
@@ -58,7 +58,7 @@ class RobotController:
         area >= max_area      -> 100% steering (max_steer)
         in between            -> linear ramp
 
-        Direction: red -> steer left (negative), green -> steer right (positive).
+        Direction: red -> steer left (positive), green -> steer right (negative).
         Unknown color -> no steering (fail safe: don't guess a direction).
         """
         area = pillar["area"]

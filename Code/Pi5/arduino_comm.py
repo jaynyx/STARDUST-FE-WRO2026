@@ -1,6 +1,6 @@
 import serial
 
-ARDUINO_PORT = '/dev/ttyUSB0'
+ARDUINO_PORT = '/dev/ttyACM1'
 ARDUINO_BAUD = 115200
 
 arduino = serial.Serial(ARDUINO_PORT, ARDUINO_BAUD, timeout=1)

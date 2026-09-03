@@ -112,12 +112,12 @@ def detect_line(img_bgr, roi_bottom_ratio=0.3):
                     "length": length
                 }
 
-    #if best_line:  # simply draws the overlay for debugging
-     #   color_draw = (255, 0, 0) if best_line["color"] == "blue" else (0, 165, 255)
-      #  cv2.line(img_bgr, (best_line["x1"], best_line["y1"]),
-      #            (best_line["x2"], best_line["y2"]), color_draw, 2)
-      #  cv2.putText(img_bgr, best_line["color"], (best_line["x1"], best_line["y1"] - 5),
-        #            cv2.FONT_HERSHEY_SIMPLEX, 0.4, color_draw, 1)
+    if best_line:  # simply draws the overlay for debugging
+        color_draw = (255, 0, 0) if best_line["color"] == "blue" else (0, 165, 255)
+        cv2.line(img_bgr, (best_line["x1"], best_line["y1"]),
+                  (best_line["x2"], best_line["y2"]), color_draw, 2)
+        cv2.putText(img_bgr, best_line["color"], (best_line["x1"], best_line["y1"] - 5),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.4, color_draw, 1)
 
     return img_bgr, best_line
 
@@ -145,14 +145,16 @@ def detect_walls(img_bgr, roi_top_ratio=0.25, dark_threshold=50, min_area=800,
     # stronger blur — smooths out floor texture/noise before thresholding
     blurred = cv2.GaussianBlur(gray, (7, 7), 0)
 
+    # from the internet:
     # Otsu's method auto-picks the best threshold value per-frame, instead of
     # relying on one fixed number that might not hold under changing lighting
+    
     _, mask = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
     # morphological cleanup: remove small noise specks, then fill small gaps/holes
     kernel = np.ones((5, 5), np.uint8)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=1)   # erode then dilate — kills small noise
-    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=2)  # dilate then erode — fills small gaps
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=1)   # kills small noise
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=2)  # fills small gaps
 
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 

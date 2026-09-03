@@ -49,12 +49,13 @@ with Camera(port='/dev/ttyACM0', baudrate=921600) as cam:
             img_bgr, detections = process_frame(img_bgr)  
 
             action = controller.decide(detections)                                  # <-- call it here
-            print(f"steering={action['steering']:.2f}")                             # temporary, just to see it working
+            print(f"steering={action['steering']:.2f}")  
+            print(f"speed={action['speed']:.2f}")  # temporary, just to see it working
             envoyer_si_nouveau(steering=action["steering"], rpm=action["speed"])         
 
             # imageio wants RGB, not BGR — convert back before writing
             video_writer.append_data(cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB))
-            SHOW_WINDOW = True
+            SHOW_WINDOW = False
             if SHOW_WINDOW:
                 cv2.imshow('OpenMV Live Feed', img_bgr)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
