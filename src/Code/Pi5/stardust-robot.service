@@ -1,0 +1,13 @@
+[Unit]
+Description=STARDUST robot autonomous run
+After=multi-user.target
+
+[Service]
+Type=simple
+User=poxi99
+WorkingDirectory=/home/poxi99/STARDUST-FE-WRO2026/Code/Pi5
+ExecStart=/usr/bin/python3 /home/poxi99/STARDUST-FE-WRO2026/Code/Pi5/main.py
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
