@@ -111,9 +111,9 @@ void encoderAISR() {
 void updateRPM(String newTargetRPMFactor) {
   
 
-  if (newTargetRPMFactor.toInt() >= -1 && newTargetRPMFactor.toInt() <= 1) {
+  if (newTargetRPMFactor.toDouble() >= -1 && newTargetRPMFactor.toDouble() <= 1) {
   
-    setpointRPM = BASE_SPEED * newTargetRPMFactor.toInt();   // newTargetRPM is a scaler for the current setpointRPM, allowing for a range of RPMs to be set
+    setpointRPM = BASE_SPEED * newTargetRPMFactor.toDouble();   // newTargetRPM is a scaler for the current setpointRPM, allowing for a range of RPMs to be set
     Serial.print("New RPM target: ");
     Serial.println(setpointRPM);
 
