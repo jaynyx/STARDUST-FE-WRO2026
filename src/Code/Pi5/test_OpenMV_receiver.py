@@ -12,7 +12,7 @@ import os #to be able to check if DISPLAY is set, to know if we can show a windo
 
 SHOW_WINDOW = os.environ.get('DISPLAY') is not None                                              # if on a headless system, don't try to show a window THIS IS SET TO FALSE DURING COMP
 print("Starting recording. Press Ctrl+C to stop.")
-filename = f"/home/poxi99/STARDUST-FE-WRO2026/Code/Pi5/recordings/run_{int(time.time())}.mp4"
+filename = f"/home/poxi99/STARDUST-FE-WRO2026/src/Code/Pi5/recordings/run_{int(time.time())}.mp4"
 video_writer = imageio.get_writer(filename, fps=30)
 
 line_counter = LineCrossingCounter(cooldown_frames=15)       # creating line counter object 
