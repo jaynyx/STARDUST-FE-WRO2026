@@ -13,4 +13,4 @@ extern double BASE_ANGLE; // Previous servo angle
 
 extern Servo myServo; // Create a servo object
 
-void updateServo(String newTargetAngleFactor);
+void updateServo(String newTargetAngle;

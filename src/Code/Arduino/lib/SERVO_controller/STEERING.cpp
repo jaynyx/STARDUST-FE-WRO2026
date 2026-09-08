@@ -7,15 +7,15 @@ double newAngle; // Initial servo angle
 
 double oldAngle; // Previous servo angle
 
-double BASE_ANGLE = 90; // Previous servo angle
+double BASE_ANGLE = 55; // Previous servo angle
 
 Servo myServo; // Create a servo object
 
- void updateServo(String newTargetAngleFactor) {
-   if (newTargetAngleFactor.toInt() >= -1 && newTargetAngleFactor.toInt() <= 1)
+ void updateServo(String newTargetAngle) {
+   if (newTargetAngle.toInt() >= 0 && newTargetAngle.toInt() <= 180)
    {
 
-      newAngle = 180 * newTargetAngleFactor.toInt();
+      newAngle = newTargetAngle.toInt();
       Serial.print("New Servo angle target: ");
       Serial.println(newAngle);
 
